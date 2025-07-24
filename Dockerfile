@@ -17,7 +17,7 @@ RUN npm config set fetch-retry-maxtimeout 600000 \
     && npm config set fetch-retries 5 \
     && npm config set fetch-retry-mintimeout 15000 \
     && npm install --no-audit \
-    && npm install rollup -g \
+    && npm install -g rollup rollup-plugin-typescript2 \
     && npm install mongodb
 
 # Copy entire project

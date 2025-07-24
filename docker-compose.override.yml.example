@@ -21,14 +21,14 @@
 
 # ---------------------------------------------------
 
-# services:
+services:
 
 # # USE LIBRECHAT CONFIG FILE
-#   api:
-#     volumes:
-#     - type: bind
-#       source: ./librechat.yaml
-#       target: /app/librechat.yaml
+   api:
+     volumes:
+     - type: bind
+       source: ./librechat.yaml
+       target: /app/librechat.yaml
 
 # # LOCAL BUILD
 #   api:

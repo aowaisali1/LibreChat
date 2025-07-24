@@ -23,10 +23,17 @@ RUN npm config set fetch-retry-maxtimeout 600000 \
 # Copy entire project
 COPY . .
 
+# Install dependencies first
+RUN npm install
+
+# ✅ Explicitly install missing build plugin
+RUN npm install rollup-plugin-typescript2
+
 # Build the frontend (React build)
 RUN NODE_OPTIONS="--max-old-space-size=2048" npm run frontend \
     && npm prune --production \
     && npm cache clean --force
+
 
 # =========================
 # Stage 2: Runtime Stage

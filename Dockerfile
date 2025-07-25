@@ -1,3 +1,8 @@
+COPY librechat.yaml /app/librechat.yaml
+
+
+
+
 # =========================
 # Stage 1: Build Stage
 # =========================

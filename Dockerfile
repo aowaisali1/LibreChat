@@ -1,8 +1,3 @@
-COPY librechat.yaml /app/librechat.yaml
-
-
-
-
 # =========================
 # Stage 1: Build Stage
 # =========================
@@ -54,6 +49,9 @@ WORKDIR /app
 
 # Copy only the built app from builder stage
 COPY --from=builder /app /app
+
+# ✅ Now copy librechat.yaml (if not already in project repo root)
+COPY librechat.yaml /app/librechat.yaml
 
 # Expose correct backend port (Render needs this!)
 EXPOSE 3080

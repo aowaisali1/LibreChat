@@ -11,28 +11,29 @@ ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
 
 WORKDIR /app
 
-# Copy package files and install dependencies (no audit for speed)
-COPY package*.json ./
+# Improve fetch reliability
 RUN npm config set fetch-retry-maxtimeout 600000 \
     && npm config set fetch-retries 5 \
-    && npm config set fetch-retry-mintimeout 15000 \
-    && npm install --no-audit \
-    && npm install -g rollup rollup-plugin-typescript2 \
-    && npm install mongodb
+    && npm config set fetch-retry-mintimeout 15000
 
-# Copy entire project
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install --no-audit
+
+# Optional: install specific tools globally
+RUN npm install -g rollup rollup-plugin-typescript2
+
+# Copy the rest of the project
 COPY . .
 
-# Install dependencies first
+# Ensure all deps are installed (again for monorepo safety)
 RUN npm install
 
-# ✅ Explicitly install missing build plugin
-RUN npm install rollup-plugin-typescript2
+# Build the frontend (React)
+RUN NODE_OPTIONS="--max-old-space-size=2048" npm run frontend
 
-# Build the frontend (React build)
-RUN NODE_OPTIONS="--max-old-space-size=2048" npm run frontend \
-    && npm prune --production \
-    && npm cache clean --force
+# Remove dev deps for production image
+RUN npm prune --omit=dev && npm cache clean --force
 
 
 # =========================
@@ -40,16 +41,22 @@ RUN NODE_OPTIONS="--max-old-space-size=2048" npm run frontend \
 # =========================
 FROM node:20-alpine
 
+# Use jemalloc in runtime too
+RUN apk add --no-cache jemalloc
+ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
+
 WORKDIR /app
 
-# Copy build from the builder stage
+# Copy only the built app from builder stage
 COPY --from=builder /app /app
 
-# Expose backend port
+# Expose correct backend port (Render needs this!)
 EXPOSE 3080
 
-# Set host
+# Ensure Render detects port
+ENV PORT=3080
 ENV HOST=0.0.0.0
+ENV NODE_ENV=production
 
-# Start backend
-CMD ["npm", "run", "backend"]
+# Start backend directly
+CMD ["node", "api/server/index.js"]

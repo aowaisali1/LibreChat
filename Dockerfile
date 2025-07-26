@@ -18,7 +18,7 @@ RUN npm config set fetch-retry-maxtimeout 600000 \
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install --no-audit
+RUN npm install --no-audit mammoth docx
 
 # Optional: install specific tools globally
 RUN npm install -g rollup rollup-plugin-typescript2
